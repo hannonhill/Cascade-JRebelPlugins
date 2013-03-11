@@ -1,0 +1,66 @@
+<project name="cascade-jrebelplugins" default="build-all">	
+    <description>Builds custom JRebel plugins for use in Cascade development</description>
+	
+	<property name="base.dir" value="."/>
+	<property name="cascade.base.dir" value="../Cascade"/>
+	
+	<fileset id="build-lib.required" dir="${base.dir}/lib">
+		<include name="jr-javassist-3.8.0.GA.jar"/>
+		<include name="jr-sdk-5.1.3.jar"/>
+		<include name="jr-utils-2.1.1.jar"/>
+	</fileset>
+		
+	<target name="build-all" depends="build-cascadePropertiesReloader"/>
+	
+	<target name="build-cascadePropertiesReloader" depends="clean">
+		<!-- 
+		-	compile prerequisites 
+		-->
+		<delete dir="${base.dir}/build/lib"/>
+		<mkdir dir="${base.dir}/build/lib"/>
+		<mkdir dir="${base.dir}/build/lib/classes"/>
+		
+		<javac 
+			srcdir="${cascade.base.dir}/src/java" 
+			includes="com/hannonhill/cascade/view/struts/util/CascadeActionServlet.java"
+			destdir="${base.dir}/build/lib/classes">
+			
+			<classpath>
+				<fileset dir="${cascade.base.dir}/lib" includes="**/*.jar"/>
+			</classpath>
+		</javac>
+		
+		<jar destfile="${base.dir}/build/lib/cascade-dependencies.jar">
+			<fileset dir="${base.dir}/build/lib/classes"/>
+		</jar>
+		
+		<!--
+		-	compile plugin
+		-->
+		<path id="classpath">
+			<fileset refid="build-lib.required"/>
+			<fileset dir="${cascade.base.dir}/lib" includes="**/*.jar"/>
+			<fileset dir="${base.dir}/build/lib">
+				<include name="cascade-dependencies.jar"/>
+			</fileset>
+		</path>
+			
+		<javac debug="true" srcdir="${base.dir}/src" destdir="${base.dir}/build/classes" classpathref="classpath"/>
+		
+		<jar destfile="${base.dir}/dist/cscd-jrplugin-propreloader.jar">
+			<fileset dir="${base.dir}/build/classes"/>
+			<manifest>
+				<attribute name="JavaRebel-Plugin" value="com.hannonhill.cascade.jrebel.propreloader.CascadePropertiesReloader"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="clean">
+		<delete dir="${base.dir}/build"/>
+		<delete dir="${base.dir}/dist"/>
+		<mkdir dir="${base.dir}/build"/>
+		<mkdir dir="${base.dir}/build/classes"/>
+		<mkdir dir="${base.dir}/dist"/>
+	</target>
+	
+</project>
