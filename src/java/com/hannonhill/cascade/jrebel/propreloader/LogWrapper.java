@@ -60,7 +60,7 @@ public class LogWrapper implements Logger {
 
 	@Override
 	public void log(String arg0) {
-		log.log(arg0);
+		log.log(LOGGER_PREFIX.concat(arg0));
 	}
 
 	@Override
@@ -75,7 +75,7 @@ public class LogWrapper implements Logger {
 
 	@Override
 	public void trace(String arg0) {
-		log.trace(arg0);
+		log.trace(LOGGER_PREFIX.concat(arg0));
 	}
 	
 }
