@@ -3,7 +3,6 @@ package com.hannonhill.cascade.jrebel.propreloader;
 import java.io.File;
 import java.net.URISyntaxException;
 
-import org.apache.struts.action.ActionServlet;
 import org.zeroturnaround.javarebel.ClassResourceSource;
 import org.zeroturnaround.javarebel.Integration;
 import org.zeroturnaround.javarebel.IntegrationFactory;
@@ -12,6 +11,7 @@ import org.zeroturnaround.javarebel.LoggerFactory;
 import org.zeroturnaround.javarebel.Plugin;
 
 import com.hannonhill.cascade.jrebel.propreloader.StrutsInitMonitor.StrutsInitCBP;
+import com.hannonhill.cascade.jrebel.propreloader.StrutsReloader.StrutsReloaderCBP;
 
 public class CascadePropertiesReloader implements Plugin {
 
@@ -33,40 +33,16 @@ public class CascadePropertiesReloader implements Plugin {
 		"/com/hannonhill/cascade/resources/application_zh.properties"
 	};
 
-	private static final MonitoredFileManager monitoredFileManager = new MonitoredFileManager();
-	
-	public synchronized static void preProcess(ActionServlet actionServlet) {
-		StrutsInitMonitor.obtainLock();
-		try {
-			if (StrutsInitMonitor.isInitializing()) {
-				return;
-			}
-			
-			if (monitoredFileManager.fileChanged() && monitoredFileManager.getLastModified() > StrutsInitMonitor.getLastInitializeStart()) {
-				reinitializeActionServlet(actionServlet);
-			}
-		} finally {
-			StrutsInitMonitor.releaseLock();
-		}
-		
-	}
-	
-	private static void reinitializeActionServlet(ActionServlet actionServlet) {
-		StrutsReloaderTask reloadTask = new StrutsReloaderTask();
-		reloadTask.setActionServlet(actionServlet);
-		reloadTask.setLog(LOG);
-		
-		new Thread(reloadTask).start();
-	}
-	
 	@Override
 	public boolean checkDependencies(ClassLoader classLoader, ClassResourceSource classResourceSource) {
-		boolean result = classResourceSource.getClassResource("org.apache.struts.action.ActionServlet") != null;
-		if (!result) {
-			LoggerFactory.getInstance().echo("Dependency org.apache.struts.action.ActionServlet not found");
+		try {
+			classLoader.loadClass("org.apache.struts.action.ActionServlet");
+		} catch (ClassNotFoundException e) {
+			LOG.echo("Missing dependency org.apache.struts.action.ActionServlet");
+			return false;
 		}
 		
-		return result;
+		return true;
 	}
 
 	@Override
@@ -84,14 +60,15 @@ public class CascadePropertiesReloader implements Plugin {
 		ClassLoader classLoader = CascadePropertiesReloader.class.getClassLoader();
 		
 	    integration.addIntegrationProcessor(classLoader, "org.apache.struts.action.ActionServlet", new StrutsInitCBP());
+	    integration.addIntegrationProcessor(classLoader, "org.apache.struts.action.ActionServlet", new StrutsReloaderCBP());
 	}
 	
 	private void initMonitoredFiles() throws URISyntaxException {
 		for (String path : monitoredFilePaths) {
 			File file = new File(CLASSES_ROOT.concat(path));
 			
-			monitoredFileManager.addFileFromClasspath(file);
-			LoggerFactory.getInstance().echo("Monitoring " + file.getName() + " for changes");
+			StrutsReloader.monitoredFileManager.addFileFromClasspath(file);
+			LOG.echo("Monitoring " + file.getName() + " for changes");
 		}
 	}
 	

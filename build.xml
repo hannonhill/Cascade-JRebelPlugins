@@ -34,6 +34,7 @@
 			<fileset dir="${base.dir}/build/lib/classes"/>
 		</jar>
 		
+		
 		<!--
 		-	compile plugin
 		-->
@@ -47,10 +48,30 @@
 			
 		<javac debug="true" srcdir="${base.dir}/src" destdir="${base.dir}/build/classes" classpathref="classpath"/>
 		
+		
+		<!--
+		-   Manifest classpath
+		-->
+		<copy file="${base.dir}/lib/struts-1.2.7.jar" todir="${base.dir}/dist/lib/core"/>
+		
+		<path id="mf-clpath-lib">
+			<fileset dir="${base.dir}/dist/lib/core">
+				<include name="struts-1.2.7.jar"/>
+			</fileset>
+		</path>
+		
+		<manifestclasspath property="manifest-classpath" jarfile="${base.dir}/dist/cscd-jrplugin-propreloader.jar">
+			<classpath refid="mf-clpath-lib"/>
+		</manifestclasspath>
+		
+		<!--
+		-   Build JAR
+		-->
 		<jar destfile="${base.dir}/dist/cscd-jrplugin-propreloader.jar">
 			<fileset dir="${base.dir}/build/classes"/>
 			<manifest>
 				<attribute name="JavaRebel-Plugin" value="com.hannonhill.cascade.jrebel.propreloader.CascadePropertiesReloader"/>
+				<attribute name="Class-Path" value="${manifest-classpath}"/>
 			</manifest>
 		</jar>
 	</target>
@@ -61,6 +82,7 @@
 		<mkdir dir="${base.dir}/build"/>
 		<mkdir dir="${base.dir}/build/classes"/>
 		<mkdir dir="${base.dir}/dist"/>
+		<mkdir dir="${base.dir}/dist/lib"/>
 	</target>
 	
 </project>

@@ -63,14 +63,13 @@ public class StrutsInitMonitor {
 		@Override
 		public void process(ClassPool clPool, ClassLoader clLoader, CtClass ctClass) throws Exception {
 			Logger log = new LogWrapper(LoggerFactory.getInstance());
-			
-			log.echo("Patching the Struts ActionServlet ...");
+			log.echo("Patching struts ActionServlet initializing");
 			
 			try {
 				CtMethod paintMethod = ctClass.getDeclaredMethod("init");
 				paintMethod.insertBefore("com.hannonhill.cascade.jrebel.propreloader.StrutsInitMonitor.beforeInitialized();");
 				paintMethod.insertAfter("com.hannonhill.cascade.jrebel.propreloader.StrutsInitMonitor.afterInitialized($0);");
-
+				
 			} catch (NotFoundException e) {
 				log.error(e);
 			}

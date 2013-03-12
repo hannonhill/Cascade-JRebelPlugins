@@ -8,6 +8,5 @@
 	<classpathentry kind="lib" path="/Users/johnlazos/Projects/workspace/Cascade-JRebelPlugins/lib/jr-utils-2.1.1.jar"/>
 	<classpathentry kind="lib" path="/Users/johnlazos/Projects/workspace/Cascade-JRebelPlugins/lib/servlet-api.jar"/>
 	<classpathentry kind="lib" path="/Users/johnlazos/Projects/workspace/Cascade-JRebelPlugins/lib/struts-1.2.7.jar"/>
-	<classpathentry kind="lib" path="/Users/johnlazos/Projects/workspace/Cascade-JRebelPlugins/lib/struts1-jr-plugin-2.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
