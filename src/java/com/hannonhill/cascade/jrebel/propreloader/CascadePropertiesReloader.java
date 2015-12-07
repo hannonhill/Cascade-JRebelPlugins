@@ -17,7 +17,7 @@ public class CascadePropertiesReloader implements Plugin {
 
 	private static final Logger LOG = new LogWrapper(LoggerFactory.getInstance());	
 
-	private static final String CLASSES_ROOT = System.getProperty("cascade.proj") + "/bin";
+	private static final String CLASSES_ROOT = System.getProperty("cascade.proj") + "/out/classes";
 	
 	/*
 	 * Explicit list of property files this plugin monitors (classpath only)
@@ -68,7 +68,7 @@ public class CascadePropertiesReloader implements Plugin {
 			File file = new File(CLASSES_ROOT.concat(path));
 			
 			StrutsReloader.monitoredFileManager.addFileFromClasspath(file);
-			LOG.echo("Monitoring " + file.getName() + " for changes");
+			LOG.echo("Monitoring " + file.getName() + " for changes with path: " + file.getPath());
 		}
 	}
 	
